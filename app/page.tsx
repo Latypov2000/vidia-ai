@@ -1,9 +1,6 @@
 'use client';
 import { useState } from 'react';
 
-// Keep the production API URL explicit: NEXT_PUBLIC_* values are embedded at build time.
-const API = 'https://vidia-ai-api-vz0j.onrender.com';
-
 export default function Home() {
  const [file,setFile]=useState<File|null>(null);
  const [busy,setBusy]=useState(false);
@@ -18,14 +15,16 @@ export default function Home() {
   try {
    const data=new FormData();
    data.append('file',file);
-   const res=await fetch(`${API}/api/edit`,{method:'POST',body:data});
+   const res=await fetch('/api/edit',{method:'POST',body:data});
    const body=await res.json().catch(()=>({}));
    if(!res.ok) throw new Error(body.detail||`Сервер вернул ошибку ${res.status}`);
    setMessage(`Готово! Удалено тихих фрагментов: ${body.removed_segments}. Экспорт готов.`);
-   setDownload(`${API}${body.download_url}`);
+   const jobId=body.job_id;
+   if(!jobId) throw new Error('Сервер не вернул идентификатор готового видео.');
+   setDownload(`/api/download/${jobId}`);
   } catch(e) {
    setMessage(e instanceof TypeError
-    ? 'Не удалось связаться с сервером. Проверьте соединение и попробуйте ещё раз.'
+    ? 'Не удалось связаться с сервером сайта. Попробуйте обновить страницу.'
     : e instanceof Error ? e.message : 'Произошла неизвестная ошибка.');
   } finally {
    setBusy(false);
