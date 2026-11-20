@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: vidia-ai-api
+    runtime: docker
+    repo: https://github.com/Latypov2000/vidia-ai
+    branch: main
+    rootDir: api
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    region: frankfurt
+    healthCheckPath: /health
+    envVars:
+      - key: DATA_DIR
+        value: /data
+      - key: CORS_ORIGINS
+        value: https://vidia-ai.onrender.com
+
+  - type: web
+    name: vidia-ai
+    runtime: docker
+    repo: https://github.com/Latypov2000/vidia-ai
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    region: frankfurt
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://vidia-ai-api.onrender.com
